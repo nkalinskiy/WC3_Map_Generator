@@ -1,6 +1,6 @@
-package com.kn.map;
+package map;
 
-import com.kn.constants.MapConfig;
+import constants.MapConfig;
 
 import java.util.ArrayList;
 import java.util.Arrays;

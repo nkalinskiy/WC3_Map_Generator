@@ -1,7 +1,7 @@
-package com.kn.utils;
+package utils;
 
-import com.kn.constants.MapConfig;
-import com.kn.map.Cell;
+import constants.MapConfig;
+import map.Cell;
 
 import java.util.ArrayList;
 import java.util.List;

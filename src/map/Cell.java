@@ -1,4 +1,4 @@
-package com.kn.map;
+package map;
 
 import java.util.Objects;
 

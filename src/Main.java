@@ -1,16 +1,12 @@
-package com.kn;
-
-import com.kn.constants.AlgorithmSettings;
-import com.kn.constants.MapConfig;
-import com.kn.generator.GenotypeToPhenotypeMapper;
-import com.kn.generator.SCMapMOEA;
-import com.kn.map.Cell;
-import com.kn.map.GameMap;
-import com.kn.utils.MapSaver;
+import constants.AlgorithmSettings;
+import constants.MapConfig;
+import generator.GenotypeToPhenotypeMapper;
+import generator.SCMapMOEA;
+import map.Cell;
+import map.GameMap;
 import org.moeaframework.Executor;
 import org.moeaframework.core.NondominatedPopulation;
 import org.moeaframework.core.Solution;
-import org.moeaframework.core.variable.RealVariable;
 
 import java.util.ArrayList;
 import java.util.List;

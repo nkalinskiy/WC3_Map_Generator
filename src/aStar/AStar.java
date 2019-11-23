@@ -1,8 +1,8 @@
-package com.kn.aStar;
+package aStar;
 
-import com.kn.map.Cell;
-import com.kn.map.CellType;
-import com.kn.map.GameMap;
+import map.Cell;
+import map.CellType;
+import map.GameMap;
 import org.apache.commons.math3.util.Pair;
 
 import java.util.*;

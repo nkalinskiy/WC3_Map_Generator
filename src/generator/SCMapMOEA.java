@@ -1,11 +1,11 @@
-package com.kn.generator;
+package generator;
 
-import com.kn.aStar.AStar;
-import com.kn.constants.MapConfig;
-import com.kn.map.Cell;
-import com.kn.map.CellType;
-import com.kn.map.GameMap;
-import com.kn.utils.BaseToResourcesPaths;
+import aStar.AStar;
+import constants.MapConfig;
+import map.Cell;
+import map.CellType;
+import map.GameMap;
+import utils.BaseToResourcesPaths;
 import org.moeaframework.core.Solution;
 import org.moeaframework.core.variable.RealVariable;
 import org.moeaframework.problem.AbstractProblem;

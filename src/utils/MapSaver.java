@@ -1,6 +1,6 @@
-package com.kn.utils;
+package utils;
 
-import com.kn.map.GameMap;
+import map.GameMap;
 
 import java.util.HashMap;
 import java.util.Map;

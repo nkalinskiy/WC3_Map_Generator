@@ -1,4 +1,4 @@
-package com.kn.map;
+package map;
 
 public class ImpassableCell extends Cell {
     private StepDirection stepDirection;

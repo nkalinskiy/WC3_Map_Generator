@@ -1,4 +1,4 @@
-package com.kn.constants;
+package constants;
 
 public final class MapConfig {
     public final static int N_BASES = 2;

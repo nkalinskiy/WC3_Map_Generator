@@ -1,7 +1,7 @@
-package com.kn.generator;
+package generator;
 
-import com.kn.constants.MapConfig;
-import com.kn.map.*;
+import constants.MapConfig;
+import map.*;
 import org.apache.commons.math3.util.Pair;
 import org.moeaframework.core.Solution;
 import org.moeaframework.core.variable.RealVariable;
@@ -13,7 +13,6 @@ import java.util.Random;
 public class GenotypeToPhenotypeMapper {
     /**
      * Get full map phenotype
-     *
      * @param solution          Solution
      * @param numberOfVariables int
      * @return GameMap

@@ -1,4 +1,4 @@
-package com.kn.constants;
+package constants;
 
 public final class AlgorithmSettings {
     public static String algorithmName = "SMS-EMOA";
