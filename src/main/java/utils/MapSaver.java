@@ -8,7 +8,7 @@ import java.util.Map;
 
 public class MapSaver {
     private static MapSaver instance;
-    private Map<Integer, GameMap> savedMaps = new HashMap<>();
+    private Map<String, GameMap> savedMaps = new HashMap<>();
 
     private MapSaver() {
     }
@@ -20,11 +20,11 @@ public class MapSaver {
         return instance;
     }
 
-    public void addMap(int index, GameMap map) {
-        savedMaps.put(index, map);
+    public void addMap(String id, GameMap map) {
+        savedMaps.put(id, map);
     }
 
-    public GameMap getMap(int index) {
-        return savedMaps.get(index);
+    public GameMap getMap(String id) {
+        return savedMaps.get(id);
     }
 }
