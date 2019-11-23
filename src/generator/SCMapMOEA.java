@@ -23,7 +23,7 @@ public class SCMapMOEA extends AbstractProblem {
         super(MapConfig.N_BASES * 2 + MapConfig.N_GOLD_MINES * 2 + MapConfig.N_WOODS * 2
                         + MapConfig.N_HEROES_SHOPS * 2 + MapConfig.N_ITEMS_SHOPS * 2 + MapConfig.N_NEUTRAL_CREEPS_CAMPS * 2
                         + MapConfig.N_IMPASSABLE_AREAS * 5,
-                11,
+                12,
                 2);
         this.aStar = new AStar();
     }
