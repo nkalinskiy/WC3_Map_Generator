@@ -1,5 +1,6 @@
 package generator;
 
+import aStar.AStar;
 import constants.MapConfig;
 import map.*;
 import org.apache.commons.math3.util.Pair;
@@ -13,10 +14,14 @@ import java.util.Random;
 public class GenotypeToPhenotypeMapper {
     /**
      * Get full map phenotype
+     *
      * @param solution          Solution
      * @param numberOfVariables int
      * @return GameMap
      */
+
+    private static AStar aStar = new AStar();
+
     public static GameMap getFullPhenotype(Solution solution, int numberOfVariables) {
         GameMap cellsMap = new GameMap();
         //Getting bases phenotype
@@ -26,25 +31,55 @@ public class GenotypeToPhenotypeMapper {
             cellsMap.addCells(getBasePhenotype(axis, angle, cellsMap));
         }
 
-        //Getting minerals phenotype
-        for (int i = MapConfig.N_BASES * 2; i < MapConfig.N_BASES * 2 + MapConfig.N_MINERALS * 2; i++) {
+        //Getting gold mines phenotype
+        int startIndex = MapConfig.N_BASES * 2;
+        int lastIndex = startIndex + MapConfig.N_GOLD_MINES * 2;
+        for (int i = startIndex; i < lastIndex; i++) {
             double x = ((RealVariable) solution.getVariable(i)).getValue();
             double y = ((RealVariable) solution.getVariable(++i)).getValue();
-            cellsMap.addCells(getMineralPhenotype(x, y, cellsMap));
+            cellsMap.addCells(getGoldMinesPhenotype(x, y, cellsMap));
         }
 
-        //Getting gas wells phenotype
-        int startGasIndex = MapConfig.N_BASES * 2 + MapConfig.N_MINERALS * 2;
-        int lastGasIndex = MapConfig.N_BASES * 2 + MapConfig.N_MINERALS * 2 + MapConfig.N_GAS_WELLS * 2;
-        for (int i = startGasIndex; i < lastGasIndex; i++) {
+        //Getting woods phenotype
+        startIndex = lastIndex;
+        lastIndex += MapConfig.N_WOODS * 2;
+        for (int i = startIndex; i < lastIndex; i++) {
             double x = ((RealVariable) solution.getVariable(i)).getValue();
             double y = ((RealVariable) solution.getVariable(++i)).getValue();
-            cellsMap.addCells(getGasWellPhenotype(x, y, cellsMap));
+            cellsMap.addCells(getWoodsPhenotype(x, y, cellsMap));
         }
+
+        //Get heroes shops phenotype
+        startIndex = lastIndex;
+        lastIndex += MapConfig.N_HEROES_SHOPS * 2;
+        for (int i = startIndex; i < lastIndex; i++) {
+            double x = ((RealVariable) solution.getVariable(i)).getValue();
+            double y = ((RealVariable) solution.getVariable(++i)).getValue();
+            cellsMap.addCells(getHeroesShopPhenotype(x, y, cellsMap));
+        }
+
+        //Get items shops phenotype
+        startIndex = lastIndex;
+        lastIndex += MapConfig.N_ITEMS_SHOPS * 2;
+        for (int i = startIndex; i < lastIndex; i++) {
+            double x = ((RealVariable) solution.getVariable(i)).getValue();
+            double y = ((RealVariable) solution.getVariable(++i)).getValue();
+            cellsMap.addCells(getItemsShopPhenotype(x, y, cellsMap));
+        }
+
+        //Get neutral creeps camps phenotype
+        startIndex = lastIndex;
+        lastIndex += MapConfig.N_NEUTRAL_CREEPS_CAMPS * 2;
+        for (int i = startIndex; i < lastIndex; i++) {
+            double x = ((RealVariable) solution.getVariable(i)).getValue();
+            double y = ((RealVariable) solution.getVariable(++i)).getValue();
+            cellsMap.addCells(getNeutralsCampPhenotype(x, y, cellsMap));
+        }
+
 
         //Getting impassable areas phenotype
-        int startImpassableIndex = MapConfig.N_BASES * 2 + MapConfig.N_MINERALS * 2 + MapConfig.N_GAS_WELLS * 2;
-        for (int i = startImpassableIndex; i < numberOfVariables; i++) {
+        startIndex = lastIndex;
+        for (int i = startIndex; i < numberOfVariables; i++) {
             double x = ((RealVariable) solution.getVariable(i)).getValue();
             double y = ((RealVariable) solution.getVariable(++i)).getValue();
             double leftTurnProb = ((RealVariable) solution.getVariable(++i)).getValue();
@@ -65,16 +100,36 @@ public class GenotypeToPhenotypeMapper {
         return getNearestFreeCell(base, cellsMap);
     }
 
-    private static Cell getMineralPhenotype(double x, double y, GameMap cellsMap) {
-        Cell mineral = new Cell(Math.floor(x * (MapConfig.MAP_WIDTH - 1)), Math.floor(y * (MapConfig.MAP_HEIGHT - 1)), CellType.MINERALS);
+    private static Cell getGoldMinesPhenotype(double x, double y, GameMap cellsMap) {
+        Cell goldMine = new Cell(Math.floor(x * (MapConfig.MAP_WIDTH - 1)), Math.floor(y * (MapConfig.MAP_HEIGHT - 1)), CellType.GOLD_MINE);
         //Get nearest free cell if the generated coordinates are occupied
-        return getNearestFreeCell(mineral, cellsMap);
+        return getNearestFreeCell(goldMine, cellsMap);
     }
 
-    private static Cell getGasWellPhenotype(double x, double y, GameMap cellsMap) {
-        Cell gasWell = new Cell(Math.floor(x * (MapConfig.MAP_WIDTH - 1)), Math.floor(y * (MapConfig.MAP_HEIGHT - 1)), CellType.GAS);
+    private static List<Cell> getWoodsPhenotype(double x, double y, GameMap cellsMap) {
+        Cell forestOrigin = new Cell(Math.floor(x * (MapConfig.MAP_WIDTH - 1)), Math.floor(y * (MapConfig.MAP_HEIGHT - 1)), CellType.TREE);
+        forestOrigin = getNearestFreeCell(forestOrigin, cellsMap);
+
+        //Draw 6 cells of wood
+        return drawForestNearBase(forestOrigin, cellsMap);
+    }
+
+    private static Cell getHeroesShopPhenotype(double x, double y, GameMap cellsMap) {
+        Cell heroesShop = new Cell(Math.floor(x * (MapConfig.MAP_WIDTH - 1)), Math.floor(y * (MapConfig.MAP_HEIGHT - 1)), CellType.HEROES_SHOP);
         //Get nearest free cell if the generated coordinates are occupied
-        return getNearestFreeCell(gasWell, cellsMap);
+        return getNearestFreeCell(heroesShop, cellsMap);
+    }
+
+    private static Cell getItemsShopPhenotype(double x, double y, GameMap cellsMap) {
+        Cell itemsShop = new Cell(Math.floor(x * (MapConfig.MAP_WIDTH - 1)), Math.floor(y * (MapConfig.MAP_HEIGHT - 1)), CellType.ITEMS_SHOP);
+        //Get nearest free cell if the generated coordinates are occupied
+        return getNearestFreeCell(itemsShop, cellsMap);
+    }
+
+    private static Cell getNeutralsCampPhenotype(double x, double y, GameMap cellsMap) {
+        Cell neutralsCamp = new Cell(Math.floor(x * (MapConfig.MAP_WIDTH - 1)), Math.floor(y * (MapConfig.MAP_HEIGHT - 1)), CellType.NEUTRALS_CREEPS_CAMPS);
+        //Get nearest free cell if the generated coordinates are occupied
+        return getNearestFreeCell(neutralsCamp, cellsMap);
     }
 
     private static GameMap getImpassableAreaPhenotype(double x,
@@ -84,18 +139,11 @@ public class GenotypeToPhenotypeMapper {
                                                       double gapProb,
                                                       GameMap cellsMap) {
         List<ImpassableCell> drawnImpassableAreas = new ArrayList<>();
-        Random random = new Random();
-        CellType type;
-        if (random.nextBoolean()) {
-            type = CellType.ROCK;
-        } else {
-            type = CellType.WATER;
-        }
         Cell tmp =
-                new Cell(Math.floor(x * (MapConfig.MAP_WIDTH - 1)), Math.floor(y * (MapConfig.MAP_HEIGHT - 1)), type);
+                new Cell(Math.floor(x * (MapConfig.MAP_WIDTH - 1)), Math.floor(y * (MapConfig.MAP_HEIGHT - 1)), CellType.WATER);
         //Get nearest free cell if the generated coordinates are occupied
         tmp = getNearestFreeCell(tmp, cellsMap);
-        ImpassableCell current = new ImpassableCell(tmp.getX(), tmp.getY(), type, StepDirection.RIGHT);
+        ImpassableCell current = new ImpassableCell(tmp.getX(), tmp.getY(), CellType.WATER, StepDirection.RIGHT);
         cellsMap.addCells(current);
         drawnImpassableAreas.add(current);
 
@@ -305,5 +353,78 @@ public class GenotypeToPhenotypeMapper {
         }
 
         return current;
+    }
+
+    private static List<Cell> drawForestNearBase(Cell forestOrigin, GameMap cellsMap) {
+        List<Cell> forest = new ArrayList<>(6);
+        forest.add(forestOrigin);
+
+        //Find nearest base
+        List<Cell> bases = cellsMap.getBases();
+        int minBaseDistance = aStar.findDistance(forestOrigin, bases.get(0), cellsMap);
+        Cell nearestBase = bases.get(0);
+        for (int i = 1; i < bases.size(); i++) {
+            int nextBaseDistance = aStar.findDistance(forestOrigin, bases.get(i), cellsMap);
+            if (nextBaseDistance < minBaseDistance) {
+                minBaseDistance = nextBaseDistance;
+                nearestBase = bases.get(i);
+            }
+        }
+
+        double deltaX = forestOrigin.getX() - nearestBase.getX();
+        double deltaY = forestOrigin.getY() - nearestBase.getY();
+
+        //Base's on the left or on the right of the forest origin
+        if (Math.abs(deltaX) > Math.abs(deltaY)) {
+            if (deltaX > 0) { //Base's on the left
+                for (int i = 0; i <= 1; i++) {
+                    for (int j = -1; j <= 1; j++) {
+                        if (j == 0 && i == 0) {
+                            continue;
+                        }
+
+                        Cell tree = new Cell(forestOrigin.getX() + i, forestOrigin.getY() + j, CellType.TREE);
+                        forest.add(getNearestFreeCell(tree, cellsMap));
+                    }
+                }
+            } else { //Base's on the right
+                for (int i = -1; i <= 0; i++) {
+                    for (int j = -1; j <= 1; j++) {
+                        if (j == 0 && i == 0) {
+                            continue;
+                        }
+
+                        Cell tree = new Cell(forestOrigin.getX() + i, forestOrigin.getY() + j, CellType.TREE);
+                        forest.add(getNearestFreeCell(tree, cellsMap));
+                    }
+                }
+            }
+        } else { //Base's above or below the forest origin
+            if (deltaY > 0) { //Base's above
+                for (int i = -1; i <= 1; i++) {
+                    for (int j = 0; j <= 1; j++) {
+                        if (j == 0 && i == 0) {
+                            continue;
+                        }
+
+                        Cell tree = new Cell(forestOrigin.getX() + i, forestOrigin.getY() + j, CellType.TREE);
+                        forest.add(getNearestFreeCell(tree, cellsMap));
+                    }
+                }
+            } else { //Base's below
+                for (int i = -1; i <= 1; i++) {
+                    for (int j = -1; j <= 0; j++) {
+                        if (j == 0 && i == 0) {
+                            continue;
+                        }
+
+                        Cell tree = new Cell(forestOrigin.getX() + i, forestOrigin.getY() + j, CellType.TREE);
+                        forest.add(getNearestFreeCell(tree, cellsMap));
+                    }
+                }
+            }
+        }
+
+        return forest;
     }
 }

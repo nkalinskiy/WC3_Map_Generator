@@ -10,7 +10,7 @@ public class BaseToResourcesPaths {
     private List<List<Cell>> pathsToResources;
 
     public BaseToResourcesPaths() {
-        this.pathsToResources = new ArrayList<>(MapConfig.N_MINERALS + MapConfig.N_GAS_WELLS);
+        this.pathsToResources = new ArrayList<>(MapConfig.N_GOLD_MINES + MapConfig.N_WOODS * MapConfig.WOODS_IN_FOREST);
     }
 
     public void addPath(List<Cell> path) {

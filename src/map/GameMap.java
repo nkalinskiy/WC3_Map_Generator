@@ -7,7 +7,8 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
- * Map with a sequence of bases, minerals, gas wells and impassable areas in its list;
+ * Map with a sequence of bases, gold mines, woods, heroes shops, items shops, neutral creeps camps
+ * and impassable areas in its list;
  */
 public class GameMap {
     private final double MAP_WIDTH = 64;
@@ -18,29 +19,12 @@ public class GameMap {
     public GameMap() {
     }
 
-    ;
-
-    public GameMap(Cell... cellsMap) {
-        this.cellsMap.addAll(Arrays.asList(cellsMap));
-    }
-
-    @Override
-    public int hashCode() {
-        int ret = 7;
-        int nRows = (int) MapConfig.MAP_WIDTH;
-        int nCols = (int) MapConfig.MAP_HEIGHT;
-        ret = ret * 31 + nRows;
-        ret = ret * 31 + nCols;
-
-        for (int i = 0; i < MapConfig.N_BASES + MapConfig.N_MINERALS + MapConfig.N_GAS_WELLS; i++) {
-            ret = ret * 31 + (11 * ((int) cellsMap.get(i).getX() + 1) + 17 * ((int) cellsMap.get(i).getY() + 1));
-        }
-
-        return ret;
-    }
-
     public void addCells(Cell... cells) {
         this.cellsMap.addAll(Arrays.asList(cells));
+    }
+
+    public void addCells(List<Cell> cells) {
+        this.cellsMap.addAll(cells);
     }
 
     public boolean isCellInMapDimensions(double x, double y) {
@@ -71,8 +55,8 @@ public class GameMap {
     }
 
     public List<Cell> getResources() {
-        List<Cell> resources = new ArrayList<>(MapConfig.N_MINERALS + MapConfig.N_GAS_WELLS);
-        int lastResourceIndex = MapConfig.N_BASES + MapConfig.N_MINERALS + MapConfig.N_GAS_WELLS;
+        List<Cell> resources = new ArrayList<>(MapConfig.N_GOLD_MINES + MapConfig.N_WOODS * MapConfig.WOODS_IN_FOREST);
+        int lastResourceIndex = MapConfig.N_BASES + MapConfig.N_GOLD_MINES + MapConfig.N_WOODS * MapConfig.WOODS_IN_FOREST;
         for (int i = MapConfig.N_BASES; i < lastResourceIndex; i++) {
             resources.add(cellsMap.get(i));
         }
@@ -80,10 +64,10 @@ public class GameMap {
         return resources;
     }
 
-    public List<Cell> getMinerals() {
-        List<Cell> minerals = new ArrayList<>(MapConfig.N_MINERALS);
+    public List<Cell> getGoldMines() {
+        List<Cell> minerals = new ArrayList<>(MapConfig.N_GOLD_MINES);
         int firstMineralIndex = MapConfig.N_BASES;
-        int lastMineralIndex = MapConfig.N_BASES + MapConfig.N_MINERALS;
+        int lastMineralIndex = MapConfig.N_BASES + MapConfig.N_GOLD_MINES;
         for (int i = firstMineralIndex; i < lastMineralIndex; i++) {
             minerals.add(cellsMap.get(i));
         }
@@ -91,15 +75,39 @@ public class GameMap {
         return minerals;
     }
 
-    public List<Cell> getGasWells() {
-        List<Cell> gasWells = new ArrayList<>(MapConfig.N_GAS_WELLS);
-        int firstGasWellIndex = MapConfig.N_BASES + MapConfig.N_MINERALS;
-        int lastGasWellIndex = MapConfig.N_BASES + MapConfig.N_MINERALS + MapConfig.N_GAS_WELLS;
+    public List<Cell> getWoods() {
+        List<Cell> gasWells = new ArrayList<>(MapConfig.N_WOODS * MapConfig.WOODS_IN_FOREST);
+        int firstGasWellIndex = MapConfig.N_BASES + MapConfig.N_GOLD_MINES;
+        int lastGasWellIndex = MapConfig.N_BASES + MapConfig.N_GOLD_MINES + MapConfig.N_WOODS * MapConfig.WOODS_IN_FOREST;
         for (int i = firstGasWellIndex; i < lastGasWellIndex; i++) {
             gasWells.add(cellsMap.get(i));
         }
 
         return gasWells;
+    }
+
+    public Cell getHeroesShop() {
+        int heroesShopIndex = MapConfig.N_BASES + MapConfig.N_GOLD_MINES + MapConfig.N_WOODS * MapConfig.WOODS_IN_FOREST;
+        return cellsMap.get(heroesShopIndex);
+    }
+
+    public Cell getItemsShop() {
+        int itemsShopIndex = MapConfig.N_BASES + MapConfig.N_GOLD_MINES + MapConfig.N_WOODS * MapConfig.WOODS_IN_FOREST
+                + MapConfig.N_HEROES_SHOPS;
+        return cellsMap.get(itemsShopIndex);
+    }
+
+    public List<Cell> getNeutralsCamps() {
+        List<Cell> neutralsCamps = new ArrayList<>(MapConfig.N_NEUTRAL_CREEPS_CAMPS);
+        int firstShopIndex = MapConfig.N_BASES + MapConfig.N_GOLD_MINES + MapConfig.N_WOODS * MapConfig.WOODS_IN_FOREST
+                + MapConfig.N_HEROES_SHOPS + MapConfig.N_ITEMS_SHOPS;
+        int lastShopIndex = MapConfig.N_BASES + MapConfig.N_GOLD_MINES + MapConfig.N_WOODS * MapConfig.WOODS_IN_FOREST
+                + MapConfig.N_HEROES_SHOPS + MapConfig.N_ITEMS_SHOPS + MapConfig.N_NEUTRAL_CREEPS_CAMPS;
+        for (int i = firstShopIndex; i < lastShopIndex; i++) {
+            neutralsCamps.add(cellsMap.get(i));
+        }
+
+        return neutralsCamps;
     }
 
     public Cell getWalkableNeighbour(Cell cell) {

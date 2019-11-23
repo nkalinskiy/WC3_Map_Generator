@@ -5,11 +5,11 @@ import constants.MapConfig;
 import map.Cell;
 import map.CellType;
 import map.GameMap;
-import utils.BaseToResourcesPaths;
 import org.moeaframework.core.Solution;
 import org.moeaframework.core.variable.RealVariable;
 import org.moeaframework.problem.AbstractProblem;
 import org.moeaframework.util.Vector;
+import utils.BaseToResourcesPaths;
 
 import java.util.*;
 
@@ -20,9 +20,11 @@ public class SCMapMOEA extends AbstractProblem {
 
     public SCMapMOEA() {
         //Last variable is for index of the generated map used to save the map in MapSaver
-        super(MapConfig.N_BASES * 2 + MapConfig.N_GAS_WELLS * 2 + MapConfig.N_MINERALS * 2 + MapConfig.N_IMPASSABLE_AREAS * 5,
-                8,
-                1);
+        super(MapConfig.N_BASES * 2 + MapConfig.N_GOLD_MINES * 2 + MapConfig.N_WOODS * 2
+                        + MapConfig.N_HEROES_SHOPS * 2 + MapConfig.N_ITEMS_SHOPS * 2 + MapConfig.N_NEUTRAL_CREEPS_CAMPS * 2
+                        + MapConfig.N_IMPASSABLE_AREAS * 5,
+                11,
+                2);
         this.aStar = new AStar();
     }
 
@@ -31,7 +33,7 @@ public class SCMapMOEA extends AbstractProblem {
         GameMap cellsMap = GenotypeToPhenotypeMapper.getFullPhenotype(solution, getNumberOfVariables());
 
         //Calculating fitness
-        double[] objectives = new double[8];
+        double[] objectives = new double[getNumberOfObjectives()];
         objectives[0] = fitBaseSpace(cellsMap);
         objectives[1] = fitMinInterBaseDistance(cellsMap);
         objectives[2] = fitBaseClosestResources(cellsMap);
@@ -40,12 +42,23 @@ public class SCMapMOEA extends AbstractProblem {
         objectives[5] = fitResourceFairness(cellsMap);
         objectives[6] = fitAverageChokePoints(cellsMap);
         objectives[7] = fitPathOverlapping(cellsMap);
+        objectives[8] = fitNeutralsOwnership(cellsMap);
+        objectives[9] = fitMinBaseToNeutralsDistance(cellsMap);
+        objectives[10] = fitShopDistanceFairness(CellType.HEROES_SHOP, cellsMap);
+        objectives[11] = fitShopDistanceFairness(CellType.ITEMS_SHOP, cellsMap);
 
         //Check the hard constraint on the base space
         if (objectives[0] >= 0.5) {
             solution.setConstraint(0, 0);
         } else {
             solution.setConstraint(0, 1);
+        }
+
+        //Check the hard constraint on the min distance to neutrals
+        if (objectives[9] >= 0.1) {
+            solution.setConstraint(1, 0);
+        } else {
+            solution.setConstraint(1, 1);
         }
 
         //Checking soft constraint on min inter-base distance
@@ -166,8 +179,8 @@ public class SCMapMOEA extends AbstractProblem {
 
     private double fitResourceOwnership(GameMap cellsMap) {
         List<Cell> bases = cellsMap.getBases();
-        List<Cell> minerals = cellsMap.getMinerals();
-        List<Cell> gasWells = cellsMap.getGasWells();
+        List<Cell> minerals = cellsMap.getGoldMines();
+        List<Cell> gasWells = cellsMap.getWoods();
         List<Cell> mineralsOwnershipFraction = new ArrayList<>();
         List<Cell> gasWellsOwnershipFraction = new ArrayList<>();
 
@@ -209,38 +222,38 @@ public class SCMapMOEA extends AbstractProblem {
     }
 
     private double fitResourceSafety(GameMap cellsMap) {
-        double[][] mineralsToBasesMatrix = new double[MapConfig.N_MINERALS][MapConfig.N_BASES];
-        double[][] gasWellsToBasesMatrix = new double[MapConfig.N_GAS_WELLS][MapConfig.N_BASES];
+        double[][] mineralsToBasesMatrix = new double[MapConfig.N_GOLD_MINES][MapConfig.N_BASES];
+        double[][] woodsToBasesMatrix = new double[MapConfig.N_WOODS * MapConfig.WOODS_IN_FOREST][MapConfig.N_BASES];
         double mineralsAvgStd = 0D;
-        double gasWellsAvgStd = 0D;
+        double woodsAvgStd = 0D;
 
         List<Cell> bases = cellsMap.getBases();
-        List<Cell> minerals = cellsMap.getMinerals();
-        List<Cell> gasWells = cellsMap.getGasWells();
+        List<Cell> minerals = cellsMap.getGoldMines();
+        List<Cell> woods = cellsMap.getWoods();
 
         for (int i = 0; i < bases.size(); i++) {
             for (int j = 0; j < minerals.size(); j++) {
                 mineralsToBasesMatrix[j][i] = aStar.findDistance(minerals.get(j), bases.get(i), cellsMap);
             }
-            for (int j = 0; j < gasWells.size(); j++) {
-                gasWellsToBasesMatrix[j][i] = aStar.findDistance(gasWells.get(j), bases.get(i), cellsMap);
+            for (int j = 0; j < woods.size(); j++) {
+                woodsToBasesMatrix[j][i] = aStar.findDistance(woods.get(j), bases.get(i), cellsMap);
             }
         }
 
         for (int i = 0; i < minerals.size(); i++) {
             mineralsAvgStd += getStandardDeviation(mineralsToBasesMatrix[i]) / (double) minerals.size();
         }
-        for (int i = 0; i < gasWells.size(); i++) {
-            gasWellsAvgStd += getStandardDeviation(gasWellsToBasesMatrix[i]) / (double) gasWells.size();
+        for (int i = 0; i < woods.size(); i++) {
+            woodsAvgStd += getStandardDeviation(woodsToBasesMatrix[i]) / (double) woods.size();
         }
 
-        return Math.min(mineralsAvgStd, gasWellsAvgStd);
+        return Math.min(mineralsAvgStd, woodsAvgStd);
     }
 
     private double fitResourceFairness(GameMap cellsMap) {
         List<Cell> bases = cellsMap.getBases();
-        List<Cell> minerals = cellsMap.getMinerals();
-        List<Cell> gasWells = cellsMap.getGasWells();
+        List<Cell> minerals = cellsMap.getGoldMines();
+        List<Cell> woods = cellsMap.getWoods();
 
         List<Double> closestBaseToResourceDistance = new ArrayList<>(MapConfig.N_BASES * 2);
         double closestResourceDistance;
@@ -255,7 +268,7 @@ public class SCMapMOEA extends AbstractProblem {
             closestBaseToResourceDistance.add(closestResourceDistance);
 
             closestResourceDistance = Double.MAX_VALUE;
-            for (Cell gasWell : gasWells) {
+            for (Cell gasWell : woods) {
                 double distance = aStar.findDistance(base, gasWell, cellsMap);
                 if (distance < closestResourceDistance && distance != -1) {
                     closestResourceDistance = distance;
@@ -280,7 +293,7 @@ public class SCMapMOEA extends AbstractProblem {
                 }
             }
         }
-        return sumOfNarrowestGaps / (MapConfig.N_BASES * (MapConfig.N_MINERALS + MapConfig.N_GAS_WELLS));
+        return sumOfNarrowestGaps / (MapConfig.N_BASES * (MapConfig.N_GOLD_MINES + MapConfig.N_WOODS * MapConfig.WOODS_IN_FOREST));
     }
 
     private double fitPathOverlapping(GameMap cellsMap) {
@@ -318,6 +331,73 @@ public class SCMapMOEA extends AbstractProblem {
         }
 
         return numberOfOverlappingCells / (double) usedCells.size();
+    }
+
+    private double fitNeutralsOwnership(GameMap cellsMap) {
+        List<Cell> bases = cellsMap.getBases();
+        List<Cell> neutrals = cellsMap.getNeutralsCamps();
+        List<Cell> neutralsOwnershipFraction = new ArrayList<>();
+
+
+        Cell closestResource = null;
+        int closestResourceDistance = Integer.MAX_VALUE;
+        for (Cell base : bases) {
+            //find base's closest neutrals camp
+            for (Cell neutralsCamp : neutrals) {
+                int distance = aStar.findDistance(base, neutralsCamp, cellsMap);
+                if (distance < closestResourceDistance && distance != -1) {
+                    closestResourceDistance = distance;
+                    closestResource = neutralsCamp;
+                }
+            }
+            if (closestResource != null && !neutralsOwnershipFraction.contains(closestResource)) {
+                neutralsOwnershipFraction.add(closestResource);
+            }
+        }
+
+        return (double) neutralsOwnershipFraction.size() / ((double) MapConfig.N_BASES * MapConfig.N_NEUTRAL_CREEPS_CAMPS / 2);
+    }
+
+    private double fitMinBaseToNeutralsDistance(GameMap cellsMap) {
+        List<Cell> bases = cellsMap.getBases();
+        List<Cell> neutralsCamps = cellsMap.getNeutralsCamps();
+        double minDistance = Double.MAX_VALUE;
+        for (Cell base : bases) {
+            for (Cell neutralsCamp : neutralsCamps) {
+                double distance = aStar.findDistance(base, neutralsCamp, cellsMap);
+                if (distance != -1 && distance < minDistance) {
+                    minDistance = distance;
+                }
+            }
+        }
+
+        return minDistance / (MapConfig.MAP_WIDTH + MapConfig.MAP_HEIGHT);
+    }
+
+    private double fitShopDistanceFairness(CellType shopType, GameMap cellsMap) {
+        List<Cell> bases = cellsMap.getBases();
+        Cell shop;
+        if (shopType == CellType.HEROES_SHOP) {
+            shop = cellsMap.getHeroesShop();
+        } else {
+            shop = cellsMap.getItemsShop();
+        }
+        //Case for 2 bases for now
+        List<Double> basesToShopDistances = new ArrayList<>(bases.size());
+
+        double distance;
+        for (Cell base : bases) {
+            distance = aStar.findDistance(base, shop, cellsMap);
+            if (distance != -1) {
+                basesToShopDistances.add(distance);
+            }
+        }
+
+        if (basesToShopDistances.size() == MapConfig.N_BASES) {
+            return Collections.min(basesToShopDistances) / Collections.max(basesToShopDistances);
+        } else {
+            return - MapConfig.MAP_WIDTH * MapConfig.MAP_HEIGHT;
+        }
     }
 
     private double findNarrowestGap(List<Cell> path, GameMap cellsMap) {

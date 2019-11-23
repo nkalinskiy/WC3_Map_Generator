@@ -3,8 +3,10 @@ package map;
 public enum CellType {
     WALKABLE,
     BASE,
-    GAS,
-    MINERALS,
+    GOLD_MINE,
+    TREE,
     WATER,
-    ROCK
+    NEUTRALS_CREEPS_CAMPS,
+    HEROES_SHOP,
+    ITEMS_SHOP
 }
