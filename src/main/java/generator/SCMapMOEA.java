@@ -339,23 +339,31 @@ public class SCMapMOEA extends AbstractProblem {
         List<Cell> neutralsOwnershipFraction = new ArrayList<>();
 
 
-        Cell closestResource = null;
-        int closestResourceDistance = Integer.MAX_VALUE;
+        int firstClosestCampDistance = Integer.MAX_VALUE;
+        int secondClosestCampDistance = Integer.MAX_VALUE;
+        Cell firstCamp = null;
+        Cell secondCamp = null;
         for (Cell base : bases) {
             //find base's closest neutrals camp
             for (Cell neutralsCamp : neutrals) {
                 int distance = aStar.findDistance(base, neutralsCamp, cellsMap);
-                if (distance < closestResourceDistance && distance != -1) {
-                    closestResourceDistance = distance;
-                    closestResource = neutralsCamp;
+                if (distance < firstClosestCampDistance && distance != -1) {
+                    firstClosestCampDistance = distance;
+                    firstCamp = neutralsCamp;
+                } else if (distance < secondClosestCampDistance && distance != -1) {
+                    secondClosestCampDistance = distance;
+                    secondCamp = neutralsCamp;
                 }
             }
-            if (closestResource != null && !neutralsOwnershipFraction.contains(closestResource)) {
-                neutralsOwnershipFraction.add(closestResource);
+            if (firstCamp != null && !neutralsOwnershipFraction.contains(firstCamp)) {
+                neutralsOwnershipFraction.add(firstCamp);
+            }
+            if (secondCamp != null && !neutralsOwnershipFraction.contains(secondCamp)) {
+                neutralsOwnershipFraction.add(secondCamp);
             }
         }
 
-        return (double) neutralsOwnershipFraction.size() / ((double) MapConfig.N_BASES * MapConfig.N_NEUTRAL_CREEPS_CAMPS / 2);
+        return (double) neutralsOwnershipFraction.size() / (double) MapConfig.N_NEUTRAL_CREEPS_CAMPS;
     }
 
     private double fitMinBaseToNeutralsDistance(GameMap cellsMap) {
@@ -371,7 +379,7 @@ public class SCMapMOEA extends AbstractProblem {
             }
         }
 
-        return minDistance / (MapConfig.MAP_WIDTH + MapConfig.MAP_HEIGHT);
+        return minDistance / MapConfig.MAP_WIDTH / 4;
     }
 
     private double fitShopDistanceFairness(CellType shopType, GameMap cellsMap) {
@@ -396,7 +404,7 @@ public class SCMapMOEA extends AbstractProblem {
         if (basesToShopDistances.size() == MapConfig.N_BASES) {
             return Collections.min(basesToShopDistances) / Collections.max(basesToShopDistances);
         } else {
-            return - MapConfig.MAP_WIDTH * MapConfig.MAP_HEIGHT;
+            return -MapConfig.MAP_WIDTH * MapConfig.MAP_HEIGHT;
         }
     }
 
