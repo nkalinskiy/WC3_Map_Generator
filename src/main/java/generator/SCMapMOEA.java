@@ -179,10 +179,10 @@ public class SCMapMOEA extends AbstractProblem {
 
     private double fitResourceOwnership(GameMap cellsMap) {
         List<Cell> bases = cellsMap.getBases();
-        List<Cell> minerals = cellsMap.getGoldMines();
-        List<Cell> gasWells = cellsMap.getWoods();
-        List<Cell> mineralsOwnershipFraction = new ArrayList<>();
-        List<Cell> gasWellsOwnershipFraction = new ArrayList<>();
+        List<Cell> goldMines = cellsMap.getGoldMines();
+        List<Cell> woods = cellsMap.getWoods();
+        List<Cell> goldOwnershipFraction = new ArrayList<>();
+        List<Cell> woodOwnershipFraction = new ArrayList<>();
 
 
         Cell closestResource;
@@ -191,33 +191,33 @@ public class SCMapMOEA extends AbstractProblem {
             //find base's closest mineral
             closestResource = null;
             closestResourceDistance = Integer.MAX_VALUE;
-            for (Cell mineral : minerals) {
-                int distance = aStar.findDistance(base, mineral, cellsMap);
+            for (Cell mine : goldMines) {
+                int distance = aStar.findDistance(base, mine, cellsMap);
                 if (distance < closestResourceDistance && distance != -1) {
                     closestResourceDistance = distance;
-                    closestResource = mineral;
+                    closestResource = mine;
                 }
             }
-            if (closestResource != null && !mineralsOwnershipFraction.contains(closestResource)) {
-                mineralsOwnershipFraction.add(closestResource);
+            if (closestResource != null && !goldOwnershipFraction.contains(closestResource)) {
+                goldOwnershipFraction.add(closestResource);
             }
 
             //find base's closest gas well
             closestResource = null;
             closestResourceDistance = Integer.MAX_VALUE;
-            for (Cell gasWell : gasWells) {
-                int distance = aStar.findDistance(base, gasWell, cellsMap);
+            for (Cell wood : woods) {
+                int distance = aStar.findDistance(base, wood, cellsMap);
                 if (distance < closestResourceDistance && distance != -1) {
                     closestResourceDistance = distance;
-                    closestResource = gasWell;
+                    closestResource = wood;
                 }
             }
-            if (closestResource != null && !gasWellsOwnershipFraction.contains(closestResource)) {
-                gasWellsOwnershipFraction.add(closestResource);
+            if (closestResource != null && !woodOwnershipFraction.contains(closestResource)) {
+                woodOwnershipFraction.add(closestResource);
             }
         }
 
-        return ((double) mineralsOwnershipFraction.size() + (double) gasWellsOwnershipFraction.size()) /
+        return ((double) goldOwnershipFraction.size() + (double) woodOwnershipFraction.size()) /
                 ((double) MapConfig.N_BASES * 2);
     }
 
@@ -252,15 +252,15 @@ public class SCMapMOEA extends AbstractProblem {
 
     private double fitResourceFairness(GameMap cellsMap) {
         List<Cell> bases = cellsMap.getBases();
-        List<Cell> minerals = cellsMap.getGoldMines();
+        List<Cell> goldMines = cellsMap.getGoldMines();
         List<Cell> woods = cellsMap.getWoods();
 
         List<Double> closestBaseToResourceDistance = new ArrayList<>(MapConfig.N_BASES * 2);
         double closestResourceDistance;
         for (Cell base : bases) {
             closestResourceDistance = Double.MAX_VALUE;
-            for (Cell mineral : minerals) {
-                double distance = aStar.findDistance(base, mineral, cellsMap);
+            for (Cell mine : goldMines) {
+                double distance = aStar.findDistance(base, mine, cellsMap);
                 if (distance < closestResourceDistance && distance != -1) {
                     closestResourceDistance = distance;
                 }
@@ -268,8 +268,8 @@ public class SCMapMOEA extends AbstractProblem {
             closestBaseToResourceDistance.add(closestResourceDistance);
 
             closestResourceDistance = Double.MAX_VALUE;
-            for (Cell gasWell : woods) {
-                double distance = aStar.findDistance(base, gasWell, cellsMap);
+            for (Cell wood : woods) {
+                double distance = aStar.findDistance(base, wood, cellsMap);
                 if (distance < closestResourceDistance && distance != -1) {
                     closestResourceDistance = distance;
                 }
@@ -337,7 +337,6 @@ public class SCMapMOEA extends AbstractProblem {
         List<Cell> bases = cellsMap.getBases();
         List<Cell> neutrals = cellsMap.getNeutralsCamps();
         List<Cell> neutralsOwnershipFraction = new ArrayList<>();
-
 
         int firstClosestCampDistance = Integer.MAX_VALUE;
         int secondClosestCampDistance = Integer.MAX_VALUE;
