@@ -13,12 +13,12 @@ import utils.BaseToResourcesPaths;
 
 import java.util.*;
 
-public class SCMapMOEA extends AbstractProblem {
+public class MapGenerator extends AbstractProblem {
 
     private AStar aStar;
     private int count = 1;
 
-    public SCMapMOEA() {
+    public MapGenerator() {
         //Last variable is for index of the generated map used to save the map in MapSaver
         super(MapConfig.N_BASES * 2 + MapConfig.N_GOLD_MINES * 2 + MapConfig.N_WOODS * 2
                         + MapConfig.N_HEROES_SHOPS * 2 + MapConfig.N_ITEMS_SHOPS * 2 + MapConfig.N_NEUTRAL_CREEPS_CAMPS * 2

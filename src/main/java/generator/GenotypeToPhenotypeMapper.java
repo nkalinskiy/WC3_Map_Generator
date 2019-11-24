@@ -139,11 +139,18 @@ public class GenotypeToPhenotypeMapper {
                                                       double gapProb,
                                                       GameMap cellsMap) {
         List<ImpassableCell> drawnImpassableAreas = new ArrayList<>();
+        Random random = new Random();
+        CellType type;
+        if (random.nextDouble() <= 0.2) {
+            type = CellType.WATER;
+        } else {
+            type = CellType.FOREST;
+        }
         Cell tmp =
-                new Cell(Math.floor(x * (MapConfig.MAP_WIDTH - 1)), Math.floor(y * (MapConfig.MAP_HEIGHT - 1)), CellType.WATER);
+                new Cell(Math.floor(x * (MapConfig.MAP_WIDTH - 1)), Math.floor(y * (MapConfig.MAP_HEIGHT - 1)), type);
         //Get nearest free cell if the generated coordinates are occupied
         tmp = getNearestFreeCell(tmp, cellsMap);
-        ImpassableCell current = new ImpassableCell(tmp.getX(), tmp.getY(), CellType.WATER, StepDirection.RIGHT);
+        ImpassableCell current = new ImpassableCell(tmp.getX(), tmp.getY(), type, StepDirection.RIGHT);
         cellsMap.addCells(current);
         drawnImpassableAreas.add(current);
 

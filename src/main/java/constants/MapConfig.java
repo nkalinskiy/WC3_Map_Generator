@@ -7,7 +7,7 @@ public final class MapConfig {
     public final static int N_HEROES_SHOPS = 1;
     public final static int N_ITEMS_SHOPS = 1;
     public final static int N_NEUTRAL_CREEPS_CAMPS = 4;
-    public final static int N_IMPASSABLE_AREAS = 4;
+    public final static int N_IMPASSABLE_AREAS = 10;
     public final static double MAP_WIDTH = 64;
     public final static double MAP_HEIGHT = 64;
     //How many wood cells are generated around the genotype one

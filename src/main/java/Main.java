@@ -1,7 +1,7 @@
 import constants.AlgorithmSettings;
 import constants.MapConfig;
 import generator.GenotypeToPhenotypeMapper;
-import generator.SCMapMOEA;
+import generator.MapGenerator;
 import map.Cell;
 import map.GameMap;
 import org.moeaframework.Executor;
@@ -16,7 +16,7 @@ public class Main {
 
     public static void main(String[] args) {
         NondominatedPopulation result = new Executor()
-                .withProblemClass(SCMapMOEA.class)
+                .withProblemClass(MapGenerator.class)
                 .withAlgorithm(AlgorithmSettings.ALGORITHM_NAME)
                 .withProperty("populationSize", AlgorithmSettings.POPULATION_SIZE)
                 .withMaxEvaluations(AlgorithmSettings.MAX_EVALUATIONS)
